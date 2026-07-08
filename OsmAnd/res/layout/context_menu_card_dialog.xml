@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="@dimen/dashboard_map_toolbar"
-        android:background="@color/osmand_orange"
+        android:background="?attr/bg_color"
         android:gravity="center_vertical"
         android:clickable="true"
         android:orientation="horizontal">
