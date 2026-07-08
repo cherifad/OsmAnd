@@ -32,6 +32,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.WindowInsetsCompat;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -245,6 +246,7 @@ public class MapActivity extends OsmandActionBarActivity implements DownloadEven
 		trackDetailsMenu.setMapActivity(this);
 
 		setContentView(R.layout.main);
+		setupBottomNavigation();
 		enterToFullScreen();
 		// Navigation Drawer
 		AndroidUtils.addStatusBarPadding21v(this, findViewById(R.id.menuItems));
@@ -334,6 +336,39 @@ public class MapActivity extends OsmandActionBarActivity implements DownloadEven
 			mapViewWithLayers.onCreate(savedInstanceState);
 		}
 		extendedMapActivity.onCreate(this, savedInstanceState);
+	}
+
+	private void setupBottomNavigation() {
+		BottomNavigationView bottomNavigation = findViewById(R.id.bottom_navigation);
+		if (bottomNavigation != null) {
+			bottomNavigation.setOnItemSelectedListener(item -> {
+				int itemId = item.getItemId();
+				if (itemId == R.id.action_explore) {
+					app.logEvent("bottom_nav_explore");
+					getDashboard().setDashboardVisibility(true, net.osmand.plus.dashboard.DashboardOnMap.DashboardType.DASHBOARD, null);
+					return true;
+				} else if (itemId == R.id.action_go) {
+					app.logEvent("bottom_nav_go");
+					getMapActions().doRoute();
+					return true;
+				} else if (itemId == R.id.action_saved) {
+					app.logEvent("bottom_nav_saved");
+					Intent newIntent = new Intent(MapActivity.this, app.getAppCustomization().getMyPlacesActivity());
+					newIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+					startActivity(newIntent);
+					return true;
+				} else if (itemId == R.id.action_search) {
+					app.logEvent("bottom_nav_search");
+					getFragmentsHelper().showQuickSearch(net.osmand.plus.search.ShowQuickSearchMode.NEW_IF_EXPIRED, false);
+					return true;
+				} else if (itemId == R.id.action_menu) {
+					app.logEvent("bottom_nav_menu");
+					openDrawer();
+					return true;
+				}
+				return false;
+			});
+		}
 	}
 
 	public void setMapViewPaddings(int left, int top, int right, int bottom) {

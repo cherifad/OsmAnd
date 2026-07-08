@@ -284,3 +284,27 @@ private fun getCategoryName(categoryId: Int, context: Context): String {
 	}
 	return context.getString(resId)
 }
+
+object QuickActionComposeHelper {
+	@JvmStatic
+	fun setComposeContent(
+		composeView: androidx.compose.ui.platform.ComposeView,
+		actions: List<QuickAction>,
+		onActionClick: kotlin.jvm.functions.Function1<QuickAction, kotlin.Unit>,
+		onEditAction: kotlin.jvm.functions.Function1<QuickAction, kotlin.Unit>,
+		onDeleteAction: kotlin.jvm.functions.Function1<QuickAction, kotlin.Unit>,
+		onBackClick: kotlin.jvm.functions.Function0<kotlin.Unit>
+	) {
+		composeView.setContent {
+			QuickActionTheme {
+				QuickActionSelectionScreen(
+					actions = actions,
+					onActionClick = { onActionClick.invoke(it) },
+					onEditAction = { onEditAction.invoke(it) },
+					onDeleteAction = { onDeleteAction.invoke(it) },
+					onBackClick = { onBackClick.invoke() }
+				)
+			}
+		}
+	}
+}
