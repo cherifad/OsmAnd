@@ -4,9 +4,12 @@
         <nine-patch android:src="@drawable/bg_contextmenu_shadow_top_light" />
     </item>
     <item>
-        <shape>
-            <solid
-                android:color="@color/list_background_color_light" />
-        </shape>
+		<shape>
+			<solid
+				android:color="@color/list_background_color_light" />
+			<corners
+				android:topLeftRadius="16dp"
+				android:topRightRadius="16dp" />
+		</shape>
     </item>
 </layer-list>

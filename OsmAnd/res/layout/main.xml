@@ -48,6 +48,17 @@
 
 		</FrameLayout>
 
+		<com.google.android.material.bottomnavigation.BottomNavigationView
+			android:id="@+id/bottom_navigation"
+			xmlns:app="http://schemas.android.com/apk/res-auto"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:background="?attr/list_background_color"
+			app:menu="@menu/main_bottom_navigation"
+			app:labelVisibilityMode="labeled"
+			app:itemIconTint="?attr/icon_color_primary"
+			app:itemTextColor="?android:textColorSecondary" />
+
 	</LinearLayout>
 
 	<FrameLayout

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+	<item
+		android:id="@+id/action_explore"
+		android:icon="@drawable/ic_action_explore"
+		android:title="@string/shared_string_explore" />
+
+	<item
+		android:id="@+id/action_go"
+		android:icon="@drawable/ic_action_trail_overview"
+		android:title="@string/shared_string_go" />
+
+	<item
+		android:id="@+id/action_saved"
+		android:icon="@drawable/ic_action_folder"
+		android:title="@string/shared_string_my_places" />
+
+	<item
+		android:id="@+id/action_search"
+		android:icon="@drawable/ic_action_search_dark"
+		android:title="@string/search_button" />
+
+	<item
+		android:id="@+id/action_menu"
+		android:icon="@drawable/ic_navigation_drawer"
+		android:title="Menu" />
+</menu>
