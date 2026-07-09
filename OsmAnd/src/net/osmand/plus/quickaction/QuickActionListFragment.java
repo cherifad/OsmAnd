@@ -35,7 +35,6 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
-import androidx.compose.ui.platform.ComposeView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -97,7 +96,6 @@ public class QuickActionListFragment extends BaseFullScreenFragment implements Q
 
 	private QuickActionAdapter adapter;
 	private ItemTouchHelper touchHelper;
-	private ComposeView composeView;
 	private MapButtonsHelper mapButtonsHelper;
 	private QuickActionButtonState buttonState;
 	private final ArrayList<Long> actionsToDelete = new ArrayList<>();
@@ -147,46 +145,63 @@ public class QuickActionListFragment extends BaseFullScreenFragment implements Q
 	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
 	                         @Nullable Bundle savedInstanceState) {
 		updateNightMode();
-		composeView = new ComposeView(requireContext());
-		refreshComposeContent();
-		return composeView;
-	}
+		View view = inflate(R.layout.quick_action_list, container, false);
 
-	private void refreshComposeContent() {
-		if (composeView != null) {
-			QuickActionComposeHelper.setComposeContent(
-				composeView,
-				buttonState.getQuickActions(),
-				action -> {
-					MapActivity mapActivity = getMapActivity();
-					if (mapActivity != null) {
-						action.onActionSelected(mapActivity, null, false);
-						mapActivity.getSupportFragmentManager().popBackStack();
-					}
-					return kotlin.Unit.INSTANCE;
-				},
-				action -> {
-					FragmentManager manager = getFragmentManager();
-					if (manager != null) {
-						AddQuickActionController.showCreateEditActionDialog(app, manager, buttonState, action);
-					}
-					return kotlin.Unit.INSTANCE;
-				},
-				action -> {
-					actionsToDelete.clear();
-					actionsToDelete.add(action.id);
-					showConfirmDeleteAnActionBottomSheet(getActivity(), QuickActionListFragment.this, action, nightMode);
-					return kotlin.Unit.INSTANCE;
-				},
-				() -> {
-					FragmentActivity activity = getActivity();
-					if (activity != null) {
-						activity.onBackPressed();
-					}
-					return kotlin.Unit.INSTANCE;
-				}
-			);
+		RecyclerView recyclerView = view.findViewById(R.id.recycler_view);
+		fab = view.findViewById(R.id.fab);
+		fab.setOnClickListener(v -> showAddQuickActionDialog());
+
+		AndroidUtils.addStatusBarPadding21v(requireMyActivity(), view);
+
+		bottomPanel = view.findViewById(R.id.bottom_panel);
+		View btnSelectAll = bottomPanel.findViewById(R.id.select_all);
+		View btnDelete = bottomPanel.findViewById(R.id.delete);
+
+		btnSelectAll.setOnClickListener(v -> {
+			actionsToDelete.clear();
+			for (QuickAction action : adapter.getQuickActions()) {
+				actionsToDelete.add(action.id);
+			}
+			updateListItems();
+			updateToolbarTitle();
+		});
+
+		btnDelete.setOnClickListener(v -> showConfirmDeleteActionsBottomSheet(getMapActivity()));
+		UiUtilities.setupDialogButton(nightMode, btnDelete, SECONDARY, R.string.shared_string_delete);
+
+		toolbar = view.findViewById(R.id.toolbar);
+		navigationIcon = toolbar.findViewById(R.id.close_button);
+		deleteIconContainer = toolbar.findViewById(R.id.action_button);
+		toolbarSwitchContainer = toolbar.findViewById(R.id.toolbar_switch_container);
+		setUpToolbar();
+
+		adapter = new QuickActionAdapter(viewHolder -> touchHelper.startDrag(viewHolder));
+		recyclerView.setAdapter(adapter);
+		recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+		ItemTouchHelper.Callback touchHelperCallback = new ReorderItemTouchHelperCallback(adapter);
+		touchHelper = new ItemTouchHelper(touchHelperCallback);
+		touchHelper.attachToRecyclerView(recyclerView);
+
+		if (!InsetsUtils.isEdgeToEdgeSupported()) {
+			view.setFitsSystemWindows(true);
 		}
+
+		recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+			@Override
+			public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+				if (screenType == SCREEN_TYPE_REORDER) {
+					if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
+						fab.hide();
+					} else if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+						fab.show();
+					}
+				}
+			}
+		});
+		updateListItems();
+		updateVisibility();
+		return view;
 	}
 
 	private void setUpToolbar() {
@@ -463,29 +478,13 @@ public class QuickActionListFragment extends BaseFullScreenFragment implements Q
 
 	@Override
 	public void onActionsUpdated() {
-		if (composeView != null) {
-			refreshComposeContent();
-		} else {
-			updateListItems();
-			updateToolbarTitle();
-		}
+		updateListItems();
+		updateToolbarTitle();
 	}
 
 	@Override
 	public void onConfirmButtonClick() {
-		if (composeView != null) {
-			List<QuickAction> actions = new ArrayList<>(buttonState.getQuickActions());
-			Iterator<QuickAction> it = actions.iterator();
-			while (it.hasNext()) {
-				QuickAction qa = it.next();
-				if (actionsToDelete.contains(qa.getId())) {
-					it.remove();
-				}
-			}
-			mapButtonsHelper.updateQuickActions(buttonState, actions);
-			actionsToDelete.clear();
-			refreshComposeContent();
-		} else if (adapter != null) {
+		if (adapter != null) {
 			adapter.deleteItems(actionsToDelete);
 			actionsToDelete.clear();
 			if (screenType == SCREEN_TYPE_DELETE) {
