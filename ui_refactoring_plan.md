@@ -77,10 +77,10 @@ To execute this project safely without disrupting the build, we divide the roadm
 ### Phase 4: Map Rendering Style Adjustments [RESTRICTED]
 * Note: Map styles (`.render.xml`) are hosted in external resources at `../../resources` which are out-of-scope for the sandboxed codebase workspace. Map styling updates should be done via application settings configuration or custom map layer stylesheets.
 
-### Phase 5: Modern Jetpack Compose Migration [IN PROGRESS]
-* In accordance with project guidelines, construct new UI screens or dialogs (e.g., POI details, Quick Actions) using **Jetpack Compose**.
-* Wrap Compose code in Android View containers to seamlessly integrate them into legacy layout files like [main.xml](file:///workspaces/OsmAnd/OsmAnd/res/layout/main.xml).
-* Created a complete set of modern Compose components for quick action previews and list management in [QuickActionComposeViews.kt](file:///workspaces/OsmAnd/OsmAnd/src/net/osmand/plus/quickaction/QuickActionComposeViews.kt).
+### Phase 5: Modern XML & Material Components Migration [COMPLETED]
+* In accordance with user preferences, we avoided mixing Jetpack Compose with legacy Views. Instead, we modernized UI layouts entirely via XML and Material Component styling.
+* Refactored [quick_action_list_item.xml](file:///workspaces/OsmAnd/OsmAnd/res/layout/quick_action_list_item.xml) to wrap quick action list rows inside a rounded [MaterialCardView](https://github.com/material-components/material-components-android/blob/master/docs/components/Cards.md) with `12dp` corners, soft shadows, and card background tinting.
+* Restored [QuickActionListFragment.java](file:///workspaces/OsmAnd/OsmAnd/src/net/osmand/plus/quickaction/QuickActionListFragment.java) to its original pure Android View rendering pattern, decoupling any Compose mix-in logic.
 
 ---
 
